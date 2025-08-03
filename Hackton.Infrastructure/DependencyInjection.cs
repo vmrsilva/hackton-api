@@ -1,12 +1,11 @@
-﻿using Hackton.Domain.Base.Repository;
-using Hackton.Domain.Video.Repository;
+﻿using Hackton.Domain.Interfaces;
+using Hackton.Domain.Interfaces.Video.Repository;
 using Hackton.Infrastructure.Context;
 using Hackton.Infrastructure.Repository.Base;
 using Hackton.Infrastructure.Repository.Video;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using System.Runtime.CompilerServices;
 namespace Hackton.Infrastructure
 {
     public static class DependencyInjection
@@ -21,7 +20,7 @@ namespace Hackton.Infrastructure
 
         private static void ConfigureRepositories(this IServiceCollection services)
         {
-            services.AddScoped<IIBaseRespository, BaseRepository>();
+            services.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));
             services.AddScoped<IVideoRepository, VideoRepository>();
         }
         private static void ConfigureContext(IServiceCollection services, IConfiguration config)

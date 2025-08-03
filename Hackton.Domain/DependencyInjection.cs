@@ -1,4 +1,6 @@
-﻿using Hackton.Domain.Video.Service;
+﻿using Hackton.Domain.Interfaces.Abstractions.UseCaseAbstraction;
+using Hackton.Domain.Video.UseCases;
+using Hackton.Domain.Video.UseCases.CommandDtos;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Hackton.Domain
@@ -7,14 +9,15 @@ namespace Hackton.Domain
     {
         public static IServiceCollection AddDomain(this IServiceCollection services)
         {
-            ConfigureVideo(services);
+            //ConfigureVideo(services);
+            ConfigureUseCases(services);
 
             return services;
         }
 
-        private static void ConfigureVideo(IServiceCollection services)
+        private static void ConfigureUseCases(IServiceCollection services)
         {
-            services.AddScoped<IVideoService, VideoService>();
+            services.AddScoped<IUseCaseCommandHandler<PostNewVideoCommandDto>, PostNewVideoUseCaseHandler>();
         }
     }
 }

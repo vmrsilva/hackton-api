@@ -1,6 +1,7 @@
 ﻿using Hackton.Api.Controllers.Video.Dto;
+using Hackton.Domain.Interfaces.Abstractions.UseCaseAbstraction;
 using Hackton.Domain.Video.Entity;
-using Hackton.Domain.Video.Service;
+using Hackton.Domain.Video.UseCases.CommandDtos;
 using Mapster;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,14 +11,10 @@ namespace Hackton.Api.Controllers.Video.Http
     [Route("[controller]")]
     public class VideoController : Controller
     {
-        private readonly IVideoService _videoService;
-        public VideoController(IVideoService videoService)
-        {
-            _videoService = videoService;
-        }
+
 
         [HttpPost]
-        public async Task<IActionResult> UploadVideo([FromForm] CreateVideoDto videoDto, IFormFile file)
+        public async Task<IActionResult> UploadVideo([FromServices] IUseCaseCommandHandler<PostNewVideoCommandDto> _videoPostUseCase, [FromForm] CreateVideoDto videoDto, IFormFile file)
         {
             if (file == null || file.Length == 0)
                 return BadRequest("Arquivo de vídeo inválido.");
@@ -30,7 +27,14 @@ namespace Hackton.Api.Controllers.Video.Http
 
             var videoEntity = videoDto.Adapt<VideoEntity>();
 
-            await _videoService.PostNewVideo(videoEntity, file).ConfigureAwait(false);
+            var commandDto = new PostNewVideoCommandDto
+            {
+                FileName = file.FileName,
+                FileStream = file.OpenReadStream(),
+                VideoEntity = videoEntity
+            };
+
+            await _videoPostUseCase.Handle(commandDto).ConfigureAwait(false);
 
             return Ok();
         }
