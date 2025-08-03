@@ -1,4 +1,5 @@
 ﻿using Hackton.Api.Controllers.Video.Dto;
+using Hackton.Domain.Video.Service;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Hackton.Api.Controllers.Video.Http
@@ -7,6 +8,12 @@ namespace Hackton.Api.Controllers.Video.Http
     [Route("[controller]")]
     public class VideoController : Controller
     {
+        private readonly IVideoService _videoService;
+        public VideoController(IVideoService videoService)
+        {
+            _videoService = videoService;
+        }
+
         [HttpPost]
         public async Task<IActionResult> UploadVideo([FromForm] CreateVideoDto videoDto, IFormFile file)
         {
@@ -18,8 +25,8 @@ namespace Hackton.Api.Controllers.Video.Http
         {
             return Ok();
         }
-        [HttpGet("{id}/results")]
-        public IActionResult GetResults(string id)
+        [HttpGet("{id}/result")]
+        public IActionResult GetResult(string id)
         {
             return Ok();
         }
