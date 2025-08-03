@@ -1,5 +1,4 @@
 ﻿using Hackton.Domain.Video.Service;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Hackton.Domain

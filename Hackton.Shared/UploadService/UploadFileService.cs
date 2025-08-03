@@ -1,18 +1,17 @@
 ﻿using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Options;
 
 namespace Hackton.Shared.UploadService
 {
     public class UploadFileService : IUploadFileService
     {
-        private readonly string _connectionString;
-        private readonly string _containerName;
+        private readonly AzureBlobOptions _options;
 
-        public UploadFileService(string connectionString, string containerName)
+        public UploadFileService(IOptions<AzureBlobOptions> options)
         {
-            _connectionString = connectionString;
-            _containerName = containerName;
+            _options = options.Value;
         }
 
         public async Task<string> UploadVideoAsync(IFormFile videoFile, string blobName = null)
@@ -20,10 +19,9 @@ namespace Hackton.Shared.UploadService
             if (videoFile == null || videoFile.Length == 0)
                 throw new ArgumentException("Arquivo de vídeo inválido");
 
-            var blobServiceClient = new BlobServiceClient(_connectionString);
-            var containerClient = blobServiceClient.GetBlobContainerClient(_containerName);
+            var blobServiceClient = new BlobServiceClient(_options.ConnectionString);
+            var containerClient = blobServiceClient.GetBlobContainerClient(_options.VideoContainerName);
 
-            // Cria o container se não existir
             await containerClient.CreateIfNotExistsAsync(PublicAccessType.None);
 
             blobName ??= Guid.NewGuid().ToString() + Path.GetExtension(videoFile.FileName);

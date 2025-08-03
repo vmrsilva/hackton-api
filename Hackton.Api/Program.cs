@@ -1,6 +1,8 @@
 using Hackton.Domain;
 using Hackton.Infrastructure;
 using Hackton.Shared;
+using Mapster;
+using MapsterMapper;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,8 +14,10 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddHealthChecks();
 
+builder.Services.AddSingleton(TypeAdapterConfig.GlobalSettings);
+builder.Services.AddScoped<IMapper, ServiceMapper>();
 
-builder.Services.AddShared();
+builder.Services.AddShared(builder.Configuration);
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddDomain();
 
