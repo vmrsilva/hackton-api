@@ -1,4 +1,4 @@
-﻿namespace Hackton.Shared
+﻿namespace Hackton.Shared.UploadService.Settings
 {
     public class AzureBlobOptions
     {

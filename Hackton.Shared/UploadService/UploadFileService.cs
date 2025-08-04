@@ -1,5 +1,6 @@
 ﻿using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
+using Hackton.Shared.UploadService.Settings;
 using Microsoft.Extensions.Options;
 
 namespace Hackton.Shared.UploadService

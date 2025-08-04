@@ -2,7 +2,7 @@
 {
     public record VideoMessageDto
     {
-        public Guid MyProperty { get; set; }
+        public Guid VideoId { get; set; }
         public string FileUrl { get; set; }
     }
 }

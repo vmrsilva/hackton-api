@@ -11,8 +11,6 @@ namespace Hackton.Api.Controllers.Video.Http
     [Route("[controller]")]
     public class VideoController : Controller
     {
-
-
         [HttpPost]
         public async Task<IActionResult> UploadVideo([FromServices] IUseCaseCommandHandler<PostNewVideoCommandDto> _videoPostUseCase, [FromForm] CreateVideoDto videoDto, IFormFile file)
         {

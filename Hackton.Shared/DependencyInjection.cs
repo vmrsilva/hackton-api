@@ -1,7 +1,9 @@
 ﻿
 using Hackton.Shared.Dto.Video;
 using Hackton.Shared.Messaging;
+using Hackton.Shared.Messaging.Settings;
 using Hackton.Shared.UploadService;
+using Hackton.Shared.UploadService.Settings;
 using MassTransit;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,6 +22,8 @@ namespace Hackton.Shared
 
         private static void ConfigureMessaging(IServiceCollection services, IConfiguration configuration)
         {
+            services.Configure<MassTransitSettings>(configuration.GetSection("MassTransit"));
+
             var servidor = configuration.GetSection("MassTransit")["Server"] ?? string.Empty;
             var usuario = configuration.GetSection("MassTransit")["User"] ?? string.Empty;
             var senha = configuration.GetSection("MassTransit")["Password"] ?? string.Empty;
