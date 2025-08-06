@@ -1,4 +1,5 @@
 ﻿using Hackton.Api.Controllers.Video.Dto;
+using Hackton.Api.Response;
 using Hackton.Domain.Interfaces.Abstractions.UseCaseAbstraction;
 using Hackton.Domain.Video.Entity;
 using Hackton.Domain.Video.UseCases.CommandDtos;
@@ -34,14 +35,23 @@ namespace Hackton.Api.Controllers.Video.Http
 
             await _videoPostUseCase.Handle(commandDto).ConfigureAwait(false);
 
-            return Ok();
+            return StatusCode(StatusCodes.Status200OK, new BaseResponseDto<string>
+            {
+                Data = $"Id do video {videoEntity.Id.ToString()}"
+            });
         }
 
         [HttpGet("{id}/status")]
-        public IActionResult GetStatus(string id)
+        public async Task<IActionResult> GetStatus([FromServices] IUseCaseQueryHandler<Guid, VideoEntity> _useCaseGet, Guid id)
         {
-            return Ok();
+            var video = await _useCaseGet.Handle(id).ConfigureAwait(false);
+
+            return StatusCode(StatusCodes.Status200OK, new BaseResponseDto<VideoEntity>
+            {
+                Data = video
+            });
         }
+
         [HttpGet("{id}/result")]
         public IActionResult GetResult(string id)
         {
