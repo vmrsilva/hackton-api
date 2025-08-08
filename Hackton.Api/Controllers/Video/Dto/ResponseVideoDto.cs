@@ -7,7 +7,6 @@ namespace Hackton.Api.Controllers.Video.Dto
         public Guid Id { get; init; }
         public required string Title { get; init; }
         public string Description { get; init; }
-        public string FilePath { get; init; }
         public bool Active { get; init; }
         public DateTime CreateAt { get; init; }
         public String Status { get; init; }

@@ -46,9 +46,11 @@ namespace Hackton.Api.Controllers.Video.Http
         {
             var video = await _useCaseGet.Handle(id).ConfigureAwait(false);
 
-            return StatusCode(StatusCodes.Status200OK, new BaseResponseDto<VideoEntity>
+            var result = video.Adapt<ResponseVideoDto>();
+
+            return StatusCode(StatusCodes.Status200OK, new BaseResponseDto<ResponseVideoDto>
             {
-                Data = video
+                Data = result
             });
         }
 

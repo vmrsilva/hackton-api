@@ -14,8 +14,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddHealthChecks();
 
-builder.Services.AddSingleton(TypeAdapterConfig.GlobalSettings);
-builder.Services.AddScoped<IMapper, ServiceMapper>();
+
 
 builder.Services.AddShared(builder.Configuration);
 builder.Services.AddInfrastructure(builder.Configuration);

@@ -24,7 +24,7 @@ namespace Hackton.Infrastructure.Repository.Base
 
         public async Task<T> GetByIdAsync(Guid id)
         {
-            var entity = await _dbSet.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id && !x.Active).ConfigureAwait(false);
+            var entity = await _dbSet.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id && x.Active).ConfigureAwait(false);
             return entity;
         }
     }
