@@ -1,3 +1,9 @@
+using Hackton.Domain;
+using Hackton.Infrastructure;
+using Hackton.Shared;
+using Mapster;
+using MapsterMapper;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -7,6 +13,12 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddHealthChecks();
+
+
+
+builder.Services.AddShared(builder.Configuration);
+builder.Services.AddInfrastructure(builder.Configuration);
+builder.Services.AddDomain();
 
 var app = builder.Build();
 
