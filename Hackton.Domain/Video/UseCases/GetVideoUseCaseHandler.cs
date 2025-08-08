@@ -1,12 +1,6 @@
-﻿using Hackton.Domain.Interfaces.Abstractions.UseCaseAbstraction;
-using Hackton.Domain.Interfaces.Video.Repository;
+﻿using Hackton.Domain.Interfaces.Video.Repository;
 using Hackton.Domain.Interfaces.Video.UseCases;
 using Hackton.Domain.Video.Entity;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Hackton.Domain.Video.UseCases
 {
