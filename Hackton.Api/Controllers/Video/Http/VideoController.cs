@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Hackton.Api.Controllers.Video.Http
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     public class VideoController : Controller
     {
         [HttpPost]

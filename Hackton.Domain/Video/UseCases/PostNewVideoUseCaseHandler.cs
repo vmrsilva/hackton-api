@@ -5,7 +5,6 @@ using Hackton.Shared.Dto.Video;
 using Hackton.Shared.Messaging;
 using Hackton.Shared.Messaging.Settings;
 using Hackton.Shared.UploadService;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 
 namespace Hackton.Domain.Video.UseCases
@@ -17,7 +16,7 @@ namespace Hackton.Domain.Video.UseCases
         private readonly IMessagingService _messagingService;
         private readonly MassTransitSettings _massTransitSettings;
 
-        public PostNewVideoUseCaseHandler(IUploadFileService uploadFileService, 
+        public PostNewVideoUseCaseHandler(IUploadFileService uploadFileService,
                                           IVideoRepository videoRepository,
                                           IMessagingService messagingService,
                                           IOptions<MassTransitSettings> massTransitOptions)

@@ -1,6 +1,4 @@
-﻿using Hackton.Domain.Enums;
-
-namespace Hackton.Api.Controllers.Video.Dto
+﻿namespace Hackton.Api.Controllers.Video.Dto
 {
     public record ResponseVideoDto
     {

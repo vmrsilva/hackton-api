@@ -15,7 +15,7 @@ namespace Hackton.Infrastructure.Repository.Video
 
         public async Task Create(VideoEntity videoEntity)
         {
-            await _repository.AddAsync(videoEntity).ConfigureAwait(false);            
+            await _repository.AddAsync(videoEntity).ConfigureAwait(false);
         }
 
         public async Task<VideoEntity> GetById(Guid id)

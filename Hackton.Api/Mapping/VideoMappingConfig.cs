@@ -1,7 +1,7 @@
 ﻿using Hackton.Api.Controllers.Video.Dto;
+using Hackton.Domain.Enums;
 using Hackton.Domain.Video.Entity;
 using Mapster;
-using Hackton.Domain.Enums;
 
 namespace Hackton.Api.Mapping
 {
@@ -14,7 +14,7 @@ namespace Hackton.Api.Mapping
                 {
                     Id = src.Id,
                     Title = src.Title,
-                    Description = src.Description,       
+                    Description = src.Description,
                     Active = src.Active,
                     CreateAt = src.CreateAt,
                     Status = src.Status.GetDescription()

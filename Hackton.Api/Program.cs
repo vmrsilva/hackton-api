@@ -1,8 +1,6 @@
 using Hackton.Domain;
 using Hackton.Infrastructure;
 using Hackton.Shared;
-using Mapster;
-using MapsterMapper;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -38,3 +36,5 @@ app.MapControllers();
 app.MapHealthChecks("/health");
 
 app.Run();
+
+public partial class Program { }
