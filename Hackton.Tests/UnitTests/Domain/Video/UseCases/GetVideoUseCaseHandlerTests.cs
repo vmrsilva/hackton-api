@@ -14,8 +14,6 @@ namespace Hackton.Tests.UnitTests.Domain.Video.UseCases
         private readonly Mock<IVideoRepository> _videoRepository;
         private readonly IGetVideoUseCaseHandler<Guid, VideoEntity> _getVideoUseCaseHandler;
 
-
-
         public GetVideoUseCaseHandlerTests()
         {
             _videoRepository = new Mock<IVideoRepository>();

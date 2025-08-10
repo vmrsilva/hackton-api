@@ -12,7 +12,7 @@ namespace Hackton.Tests.IntegrationTests.Controllers
     public class VideoControllerTests(HacktonApplicationFactory factory) : BaseIntegrationTest(factory)
     {
         const string routeBase = "api/video";
-
+        
         [Fact(DisplayName = "Should Get Status Return Video")]
         public async Task ShouldGetStatusReturnVideo()
         {
