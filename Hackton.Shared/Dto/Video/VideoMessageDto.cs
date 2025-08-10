@@ -3,6 +3,6 @@
     public record VideoMessageDto
     {
         public Guid VideoId { get; set; }
-        public string FileUrl { get; set; }
+        public string FileName { get; set; }
     }
 }

@@ -46,13 +46,13 @@ namespace Hackton.Domain.Video.UseCases
 
             var message = new VideoMessageDto
             {
-                FileUrl = filePath,
+                FileName = filePath,
                 VideoId = newEntity.Id
             };
 
             var queueName = _massTransitSettings.QueueVideos;
 
-            var messageSent = await _messagingService.SendMessage(queueName, new VideoMessageDto { FileUrl = filePath, VideoId = newEntity.Id }).ConfigureAwait(false);
+            var messageSent = await _messagingService.SendMessage(queueName, new VideoMessageDto { FileName = command.FileName, VideoId = newEntity.Id }).ConfigureAwait(false);
 
             if (!messageSent)
                 throw new VideoBrokerMessageFailException();
