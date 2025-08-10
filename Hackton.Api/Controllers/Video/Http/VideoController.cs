@@ -35,9 +35,11 @@ namespace Hackton.Api.Controllers.Video.Http
 
                 var videoEntity = videoDto.Adapt<VideoEntity>();
 
+                var fileName = videoEntity.Id.ToString()  + extension;
+
                 var commandDto = new PostNewVideoCommandDto
                 {
-                    FileName = file.FileName,
+                    FileName = fileName,
                     FileStream = file.OpenReadStream(),
                     VideoEntity = videoEntity
                 };
@@ -64,7 +66,7 @@ namespace Hackton.Api.Controllers.Video.Http
                     Error = ex.Message
                 });
             }
-            catch (Exception)
+            catch (Exception ex)
             {
 
                 return StatusCode(StatusCodes.Status500InternalServerError, new BaseResponse
