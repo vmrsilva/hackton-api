@@ -1,5 +1,6 @@
 ﻿using Hackton.Domain.Interfaces.Video.Repository;
 using Hackton.Domain.Interfaces.Video.UseCases;
+using Hackton.Domain.Video.Exceptions;
 using Hackton.Domain.Video.UseCases.CommandDtos;
 using Hackton.Shared.Dto.Video;
 using Hackton.Shared.Messaging;
@@ -29,10 +30,12 @@ namespace Hackton.Domain.Video.UseCases
 
         public async Task Handle(PostNewVideoCommandDto command, CancellationToken cancellation = default)
         {
+
+
             var filePath = await _uploadFileService.UploadVideoAsync(command.FileStream, command.FileName);
 
-            if (filePath is null)
-                throw new Exception("");
+            if (string.IsNullOrEmpty(filePath))
+                throw new VideoFilePathEmptyException();
 
             var newEntity = command.VideoEntity;
 
@@ -52,7 +55,7 @@ namespace Hackton.Domain.Video.UseCases
             var messageSent = await _messagingService.SendMessage(queueName, new VideoMessageDto { FileUrl = filePath, VideoId = newEntity.Id }).ConfigureAwait(false);
 
             if (!messageSent)
-                throw new Exception("erro msg");
+                throw new VideoBrokerMessageFailException();
         }
     }
 }

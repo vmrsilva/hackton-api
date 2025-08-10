@@ -2,7 +2,7 @@
 
 namespace Hackton.Domain.Interfaces.Video.UseCases
 {
-    internal interface IGetVideoUseCaseHandler<TCommand, TResponse> : IUseCaseQueryHandler<TCommand, TResponse>
+    public interface IGetVideoUseCaseHandler<TCommand, TResponse> : IUseCaseQueryHandler<TCommand, TResponse>
     {
     }
 }

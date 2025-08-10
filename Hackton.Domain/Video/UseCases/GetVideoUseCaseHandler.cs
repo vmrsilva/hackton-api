@@ -1,6 +1,7 @@
 ﻿using Hackton.Domain.Interfaces.Video.Repository;
 using Hackton.Domain.Interfaces.Video.UseCases;
 using Hackton.Domain.Video.Entity;
+using Hackton.Domain.Video.Exceptions;
 
 namespace Hackton.Domain.Video.UseCases
 {
@@ -13,10 +14,13 @@ namespace Hackton.Domain.Video.UseCases
             _videoRepository = videoRepository;
         }
 
-        public async Task<Entity.VideoEntity> Handle(Guid command, CancellationToken cancellationToken = default)
+        public async Task<VideoEntity> Handle(Guid command, CancellationToken cancellationToken = default)
         {
 
             var videoDb = await _videoRepository.GetById(command).ConfigureAwait(false);
+
+            if (videoDb is null)
+                throw new VideoNotFoundException();
 
             return videoDb;
         }
