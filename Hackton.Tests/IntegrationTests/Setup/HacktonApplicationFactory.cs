@@ -147,7 +147,8 @@ namespace Hackton.Tests.IntegrationTests.Setup
                 services.Remove(uploadService);
             }
 
-            services.AddSingleton<IUploadFileService>(_uploadFileService.Object);
+            //services.AddSingleton<IUploadFileService>(_uploadFileService.Object);
+            services.AddScoped<IUploadFileService>(_ => _uploadFileService.Object);
 
             var messageService = services.FirstOrDefault(descriptor => descriptor.ServiceType == typeof(IMessagingService));
             if (messageService != null)
@@ -155,7 +156,8 @@ namespace Hackton.Tests.IntegrationTests.Setup
                 services.Remove(messageService);
             }
 
-            services.AddSingleton<IMessagingService>(_messagingService.Object);
+            //            services.AddSingleton<IMessagingService>(_messagingService.Object);
+            services.AddScoped<IMessagingService>(_ => _messagingService.Object);
         }
 
         public Mock<IUploadFileService> GetUploadFileServiceMocked()

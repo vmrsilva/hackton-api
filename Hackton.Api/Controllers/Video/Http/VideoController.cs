@@ -19,13 +19,19 @@ namespace Hackton.Api.Controllers.Video.Http
             try
             {
                 if (file == null || file.Length == 0)
-                    return BadRequest("Arquivo de vídeo inválido.");
+                    return StatusCode(StatusCodes.Status400BadRequest, new BaseResponse
+                    {
+                        Error = "Arquivo inválido."
+                    });
 
                 var permittedExtensions = new[] { ".mp4", ".avi" };
                 var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
 
                 if (string.IsNullOrEmpty(extension) || !permittedExtensions.Contains(extension))
-                    return BadRequest("Tipo de arquivo não permitido. Apenas .mp4 e .avi são aceitos.");
+                    return StatusCode(StatusCodes.Status400BadRequest, new BaseResponse
+                    {
+                        Error = "Tipo de arquivo não permitido. Apenas .mp4 e .avi são aceitos."
+                    });
 
                 var videoEntity = videoDto.Adapt<VideoEntity>();
 
@@ -38,9 +44,9 @@ namespace Hackton.Api.Controllers.Video.Http
 
                 await _videoPostUseCase.Handle(commandDto).ConfigureAwait(false);
 
-                return StatusCode(StatusCodes.Status200OK, new BaseResponseDto<string>
+                return StatusCode(StatusCodes.Status201Created, new BaseResponseDto<string>
                 {
-                    Data = $"Id do video {videoEntity.Id.ToString()}"
+                    Data = videoEntity.Id.ToString()
                 });
             }
             catch (VideoFilePathEmptyException ex)
@@ -84,7 +90,7 @@ namespace Hackton.Api.Controllers.Video.Http
             }
             catch (VideoNotFoundException ex)
             {
-                return StatusCode(StatusCodes.Status400BadRequest, new BaseResponse
+                return StatusCode(StatusCodes.Status400BadRequest, new BaseResponseDto<ResponseVideoDto>
                 {
                     Error = ex.Message
                 });
@@ -92,7 +98,7 @@ namespace Hackton.Api.Controllers.Video.Http
             catch (Exception)
             {
 
-                return StatusCode(StatusCodes.Status500InternalServerError, new BaseResponse
+                return StatusCode(StatusCodes.Status500InternalServerError, new BaseResponseDto<ResponseVideoDto>
                 {
                     Error = "Error ao consultar video."
                 });
