@@ -7,7 +7,7 @@ using Hackton.Domain.Video.Exceptions;
 using Hackton.Domain.Video.UseCases;
 using Moq;
 
-namespace Hackton.Tests.IntegrationTests.Domain.Video.UseCases
+namespace Hackton.Tests.UnitTests.Domain.Video.UseCases
 {
     public class GetVideoUseCaseHandlerTests
     {

@@ -10,6 +10,24 @@ namespace Hackton.Tests.IntegrationTests.Controllers
         [Fact]
         public async Task Teste()
         {
+            var messageServiceMock = factory.GetMessagingServiceMocked();
+            var uploadServiceMock = factory.GetUploadFileServiceMocked();  
+
+            var client = factory.CreateClient();
+
+            var videoDb = await _dbContext.Video.FirstOrDefaultAsync();
+
+            var response = await client.GetAsync($"{routeBase}/{videoDb.Id}/status");
+
+            Assert.True(true);
+        }
+        
+        [Fact]
+        public async Task PostNewVideo()
+        {
+            var messageServiceMock = factory.GetMessagingServiceMocked();
+            var uploadServiceMock = factory.GetUploadFileServiceMocked();
+
             var client = factory.CreateClient();
 
             var videoDb = await _dbContext.Video.FirstOrDefaultAsync();

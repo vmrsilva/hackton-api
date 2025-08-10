@@ -3,7 +3,7 @@ using Hackton.Api.Controllers.Video.Dto;
 using Hackton.Domain.Video.Entity;
 using Mapster;
 
-namespace Hackton.Tests.IntegrationTests.Domain.Video.Entity
+namespace Hackton.Tests.UnitTests.Domain.Video.Entity
 {
     public class VideoEntityTests
     {

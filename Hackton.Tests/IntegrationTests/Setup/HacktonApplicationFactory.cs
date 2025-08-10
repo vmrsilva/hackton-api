@@ -2,11 +2,14 @@
 using DotNet.Testcontainers.Builders;
 using Hackton.Domain.Video.Entity;
 using Hackton.Infrastructure.Context;
+using Hackton.Shared.Messaging;
+using Hackton.Shared.UploadService;
 using MassTransit;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Moq;
 using System.Runtime.InteropServices;
 using Testcontainers.MsSql;
 using Testcontainers.RabbitMq;
@@ -20,9 +23,14 @@ namespace Hackton.Tests.IntegrationTests.Setup
         //private readonly RedisContainer _redisContainer;
         private readonly string _rabbitPwd = "guest";
         private readonly string _rabbitUser = "guest";
+        private readonly Mock<IUploadFileService> _uploadFileService;
+        private readonly Mock<IMessagingService> _messagingService;
 
         public HacktonApplicationFactory()
         {
+            _uploadFileService = new Mock<IUploadFileService>();
+            _messagingService = new Mock<IMessagingService>();
+
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
                 _msSqlContainer = new MsSqlBuilder()
@@ -53,6 +61,7 @@ namespace Hackton.Tests.IntegrationTests.Setup
             {
                 ConfigureDbContext(services);
                 //ConfigureCache(services);
+                MockServices(services);
                 ConfigureRabbitMq(services);
             });
 
@@ -130,6 +139,34 @@ namespace Hackton.Tests.IntegrationTests.Setup
             });
         }
 
+        private void MockServices(IServiceCollection services)
+        {
+            var uploadService = services.FirstOrDefault(descriptor => descriptor.ServiceType == typeof(IUploadFileService));
+            if (uploadService != null)
+            {
+                services.Remove(uploadService);
+            }
+
+            services.AddSingleton<IUploadFileService>(_uploadFileService.Object);
+
+            var messageService = services.FirstOrDefault(descriptor => descriptor.ServiceType == typeof(IMessagingService));
+            if (messageService != null)
+            {
+                services.Remove(messageService);
+            }
+
+            services.AddSingleton<IMessagingService>(_messagingService.Object);
+        }
+
+        public Mock<IUploadFileService> GetUploadFileServiceMocked()
+        {
+            return _uploadFileService;
+        }
+
+        public Mock<IMessagingService> GetMessagingServiceMocked()
+        {
+            return _messagingService;
+        }
 
         public async Task InitializeAsync()
         {
@@ -155,8 +192,6 @@ namespace Hackton.Tests.IntegrationTests.Setup
                 .RuleFor(f => f.FilePath, f => f.System.FileName())
                 .RuleFor(f => f.Title, f => f.Lorem.Word())
                 .Generate();
-
-
 
             context.Video.AddRange(video);
 

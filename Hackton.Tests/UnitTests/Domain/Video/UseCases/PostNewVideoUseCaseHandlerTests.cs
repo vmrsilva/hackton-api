@@ -13,7 +13,7 @@ using Hackton.Shared.UploadService;
 using Microsoft.Extensions.Options;
 using Moq;
 
-namespace Hackton.Tests.IntegrationTests.Domain.Video.UseCases
+namespace Hackton.Tests.UnitTests.Domain.Video.UseCases
 {
     public class PostNewVideoUseCaseHandlerTests
     {
