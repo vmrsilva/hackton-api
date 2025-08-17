@@ -44,7 +44,10 @@ namespace Hackton.Infrastructure.Migrations
                     b.Property<string>("FilePath")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)")
-                        .HasColumnName("FilaPath");
+                        .HasColumnName("FilePath");
+
+                    b.Property<DateTime?>("ProcessedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("Status")
                         .HasColumnType("int")

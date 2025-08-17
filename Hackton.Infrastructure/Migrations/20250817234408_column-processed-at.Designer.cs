@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Hackton.Infrastructure.Migrations
 {
     [DbContext(typeof(HacktonContext))]
-    [Migration("20250803192740_first-migration")]
-    partial class firstmigration
+    [Migration("20250817234408_column-processed-at")]
+    partial class columnprocessedat
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -48,6 +48,9 @@ namespace Hackton.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("FilePath");
+
+                    b.Property<DateTime?>("ProcessedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("Status")
                         .HasColumnType("int")
