@@ -49,7 +49,7 @@ namespace Hackton.Tests.IntegrationTests.Setup
                     .WithUsername(_rabbitPwd)
                     .WithPassword(_rabbitUser)
                     .WithPortBinding(5672, 5672)
-                    .WithPortBinding(15672, 15672) // RabbitMQ Management
+                    .WithPortBinding(15672, 15672)
                     .WithWaitStrategy(Wait.ForUnixContainer().UntilPortIsAvailable(5672))
                     .WithWaitStrategy(Wait.ForUnixContainer().UntilPortIsAvailable(15672))
                     .Build();

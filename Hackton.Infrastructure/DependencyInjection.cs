@@ -1,11 +1,14 @@
 ﻿using Hackton.Domain.Interfaces;
 using Hackton.Domain.Interfaces.Video.Repository;
+using Hackton.Domain.Interfaces.VideoResult.Repository;
 using Hackton.Infrastructure.Context;
+using Hackton.Infrastructure.MongoRepository;
 using Hackton.Infrastructure.Repository.Base;
 using Hackton.Infrastructure.Repository.Video;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+
 namespace Hackton.Infrastructure
 {
     public static class DependencyInjection
@@ -14,6 +17,7 @@ namespace Hackton.Infrastructure
         {
             ConfigureContext(services, config);
             ConfigureRepositories(services);
+            ConfigureMongoContext(services);
 
             return services;
         }
@@ -36,6 +40,12 @@ namespace Hackton.Infrastructure
             {
                 var dbContext = serviceProvider.GetRequiredService<HacktonContext>();
             }
+        }
+
+        private static void ConfigureMongoContext(IServiceCollection services)
+        {
+            services.AddScoped<HacktonMongoContext>();
+            services.AddScoped<IVideoResultRepository, VideoResultRepository>();
         }
     }
 }

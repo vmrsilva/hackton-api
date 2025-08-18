@@ -1,11 +1,14 @@
 ﻿using Hackton.Api.Controllers.Video.Dto;
 using Hackton.Api.Response;
 using Hackton.Domain.Interfaces.Abstractions.UseCaseAbstraction;
+using Hackton.Domain.Interfaces.VideoResult.UseCase;
 using Hackton.Domain.Video.Entity;
 using Hackton.Domain.Video.Exceptions;
 using Hackton.Domain.Video.UseCases.CommandDtos;
+using Hackton.Domain.VideoResult.Entity;
 using Mapster;
 using Microsoft.AspNetCore.Mvc;
+using static MassTransit.ValidationResultExtensions;
 
 namespace Hackton.Api.Controllers.Video.Http
 {
@@ -35,7 +38,7 @@ namespace Hackton.Api.Controllers.Video.Http
 
                 var videoEntity = videoDto.Adapt<VideoEntity>();
 
-                var fileName = videoEntity.Id.ToString()  + extension;
+                var fileName = videoEntity.Id.ToString() + extension;
 
                 var commandDto = new PostNewVideoCommandDto
                 {
@@ -48,7 +51,8 @@ namespace Hackton.Api.Controllers.Video.Http
 
                 return StatusCode(StatusCodes.Status201Created, new BaseResponseDto<string>
                 {
-                    Data = videoEntity.Id.ToString()
+                    Data = videoEntity.Id.ToString(),
+                    Success = true
                 });
             }
             catch (VideoFilePathEmptyException ex)
@@ -87,7 +91,8 @@ namespace Hackton.Api.Controllers.Video.Http
 
                 return StatusCode(StatusCodes.Status200OK, new BaseResponseDto<ResponseVideoDto>
                 {
-                    Data = result
+                    Data = result,
+                    Success = true
                 });
             }
             catch (VideoNotFoundException ex)
@@ -108,9 +113,18 @@ namespace Hackton.Api.Controllers.Video.Http
         }
 
         [HttpGet("{id}/result")]
-        public IActionResult GetResult(string id)
+        public async Task<IActionResult> GetResult([FromServices] IUseCaseQueryHandler<Guid, VideoResultEntity> _videoResultUseCase, Guid id)
         {
-            return Ok();
+            var resuls = await _videoResultUseCase.Handle(id).ConfigureAwait(false);
+
+            var response = resuls.Adapt<VideoResultDto>();
+
+            return StatusCode(StatusCodes.Status200OK, new BaseResponseDto<VideoResultDto>
+            {
+                Data = response,
+                Success = true
+            });
         }
+
     }
 }

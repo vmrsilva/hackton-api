@@ -2,6 +2,8 @@
 using Hackton.Domain.Video.Entity;
 using Hackton.Domain.Video.UseCases;
 using Hackton.Domain.Video.UseCases.CommandDtos;
+using Hackton.Domain.VideoResult.Entity;
+using Hackton.Domain.VideoResult.UseCases;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Hackton.Domain
@@ -20,6 +22,7 @@ namespace Hackton.Domain
         {
             services.AddScoped<IUseCaseCommandHandler<PostNewVideoCommandDto>, PostNewVideoUseCaseHandler>();
             services.AddScoped<IUseCaseQueryHandler<Guid, VideoEntity>, GetVideoUseCaseHandler>();
+            services.AddScoped<IUseCaseQueryHandler<Guid, VideoResultEntity>, GetVideoResultsUseCaseHandler>();
         }
     }
 }
