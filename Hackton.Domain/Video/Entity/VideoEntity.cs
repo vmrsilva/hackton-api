@@ -9,6 +9,7 @@ namespace Hackton.Domain.Video.Entity
         public string Description { get; set; }
         public string FilePath { get; set; }
         public VideoStatusEnum Status { get; set; }
+        public DateTime? ProcessedAt { get; set; }
 
         public VideoEntity() { }
 

@@ -20,7 +20,7 @@ namespace Hackton.Infrastructure.EntitiesConfiguration
                 .HasMaxLength(250);
 
             builder.Property(p => p.FilePath)
-                .HasColumnName("FilaPath")
+                .HasColumnName("FilePath")
                 .IsRequired();
 
             builder.Property(p => p.Status)
