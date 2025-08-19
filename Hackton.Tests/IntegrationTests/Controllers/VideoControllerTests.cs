@@ -1,9 +1,11 @@
 ﻿using Hackton.Api.Controllers.Video.Dto;
 using Hackton.Api.Response;
+using Hackton.Domain.VideoResult.Entity;
 using Hackton.Shared.Dto.Video;
 using Hackton.Tests.IntegrationTests.Setup;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using MongoDB.Driver;
 using Moq;
 using System.Text.Json;
 
@@ -12,7 +14,7 @@ namespace Hackton.Tests.IntegrationTests.Controllers
     public class VideoControllerTests(HacktonApplicationFactory factory) : BaseIntegrationTest(factory)
     {
         const string routeBase = "api/video";
-        
+
         [Fact(DisplayName = "Should Get Status Return Video")]
         public async Task ShouldGetStatusReturnVideo()
         {
@@ -90,15 +92,6 @@ namespace Hackton.Tests.IntegrationTests.Controllers
         [Fact(DisplayName = "Should Post New Video Return BadRequest When File Is Invalid")]
         public async Task ShouldPostNewVideoReturnBadRequestWhenFileIsInvalid()
         {
-            //var _messageServiceMock = factory.GetMessagingServiceMocked();
-            //var _uploadServiceMock = factory.GetUploadFileServiceMocked();
-
-            //_uploadServiceMock.Setup(x => x.UploadVideoAsync(It.IsAny<Stream>(), It.IsAny<string>()))
-            //    .ReturnsAsync("https://blob.fake.com/video.mp4");
-
-            //_messageServiceMock.Setup(x => x.SendMessage(It.IsAny<string>(), It.IsAny<VideoMessageDto>()))
-            //    .ReturnsAsync(true);
-
             var client = factory.CreateClient();
 
             MultipartFormDataContent formData = GeneratePostPayload(0, "mp4");
@@ -196,6 +189,46 @@ namespace Hackton.Tests.IntegrationTests.Controllers
             Assert.Equal("Falha o enviar video para prcessamento.", result.Error);
             _uploadServiceMock.Verify(_uploadServiceMock => _uploadServiceMock.UploadVideoAsync(It.IsAny<Stream>(), It.IsAny<string>()), Times.Once);
             _messageServiceMock.Verify(_messageServiceMock => _messageServiceMock.SendMessage(It.IsAny<string>(), It.IsAny<VideoMessageDto>()), Times.Once);
+        }
+
+        [Fact(DisplayName = "Should Return Video Result")]
+        public async Task ShouldReturnVideoResult()
+        {
+            var client = factory.CreateClient();
+
+            var collection = _hacktonMongoContext.GetCollection<VideoResultEntity>("VideoResults");
+            var videoDb = await collection
+                .Find(Builders<VideoResultEntity>.Filter.Empty)
+                .FirstOrDefaultAsync();
+
+            var response = await client.GetAsync($"{routeBase}/{videoDb.VideoId}/result");
+
+            var responseParsed = await response.Content.ReadAsStringAsync();
+
+            var result = JsonSerializer.Deserialize<BaseResponseDto<VideoResultDto>>(responseParsed,
+                    new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+            Assert.Equal(StatusCodes.Status200OK, (int)response.StatusCode);
+            Assert.Equal(videoDb.VideoId, result.Data.VideoId);
+            Assert.Equal(videoDb.Results[0].Time, result.Data.Results[0].Time);
+            Assert.Equal(videoDb.Results[0].Description, result.Data.Results[0].Description);
+
+        }
+
+        [Fact(DisplayName = "Should Return BadRequest When Video Result Does Not Exist")]
+        public async Task ShouldReturnBadRequestWhenVideoResultDoesNotExist()
+        {
+            var client = factory.CreateClient();
+
+            var response = await client.GetAsync($"{routeBase}/{Guid.NewGuid()}/result");
+
+            var responseParsed = await response.Content.ReadAsStringAsync();
+
+            var result = JsonSerializer.Deserialize<BaseResponseDto<VideoResultDto>>(responseParsed,
+                    new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+            Assert.Equal(StatusCodes.Status400BadRequest, (int)response.StatusCode);
+            Assert.Equal("Resultado não encontrado.", result?.Error);
         }
 
         #region Private Methods

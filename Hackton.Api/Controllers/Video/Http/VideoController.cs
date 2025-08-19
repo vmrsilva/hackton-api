@@ -1,14 +1,13 @@
 ﻿using Hackton.Api.Controllers.Video.Dto;
 using Hackton.Api.Response;
 using Hackton.Domain.Interfaces.Abstractions.UseCaseAbstraction;
-using Hackton.Domain.Interfaces.VideoResult.UseCase;
 using Hackton.Domain.Video.Entity;
 using Hackton.Domain.Video.Exceptions;
 using Hackton.Domain.Video.UseCases.CommandDtos;
 using Hackton.Domain.VideoResult.Entity;
+using Hackton.Domain.VideoResult.Exceptions;
 using Mapster;
 using Microsoft.AspNetCore.Mvc;
-using static MassTransit.ValidationResultExtensions;
 
 namespace Hackton.Api.Controllers.Video.Http
 {
@@ -115,16 +114,33 @@ namespace Hackton.Api.Controllers.Video.Http
         [HttpGet("{id}/result")]
         public async Task<IActionResult> GetResult([FromServices] IUseCaseQueryHandler<Guid, VideoResultEntity> _videoResultUseCase, Guid id)
         {
-            var resuls = await _videoResultUseCase.Handle(id).ConfigureAwait(false);
-
-            var response = resuls.Adapt<VideoResultDto>();
-
-            return StatusCode(StatusCodes.Status200OK, new BaseResponseDto<VideoResultDto>
+            try
             {
-                Data = response,
-                Success = true
-            });
-        }
+                var resuls = await _videoResultUseCase.Handle(id).ConfigureAwait(false);
 
+                var response = resuls.Adapt<VideoResultDto>();
+
+                return StatusCode(StatusCodes.Status200OK, new BaseResponseDto<VideoResultDto>
+                {
+                    Data = response,
+                    Success = true
+                });
+            }
+            catch (VideoResultNotFound ex)
+            {
+                return StatusCode(StatusCodes.Status400BadRequest, new BaseResponseDto<ResponseVideoDto>
+                {
+                    Error = ex.Message
+                });
+            }
+            catch (Exception)
+            {
+
+                return StatusCode(StatusCodes.Status500InternalServerError, new BaseResponseDto<ResponseVideoDto>
+                {
+                    Error = "Error ao consultar resultado."
+                });
+            }
+        }
     }
 }

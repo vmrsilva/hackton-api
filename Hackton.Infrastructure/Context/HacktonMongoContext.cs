@@ -1,12 +1,7 @@
 ﻿using Hackton.Domain.VideoResult.Entity;
 using Microsoft.Extensions.Configuration;
 using MongoDB.Driver;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Security.Authentication;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Hackton.Infrastructure.Context
 {

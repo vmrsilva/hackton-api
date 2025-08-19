@@ -9,10 +9,12 @@ namespace Hackton.Domain.VideoResult.Entity
         public ObjectId Id { get; } = ObjectId.GenerateNewId();
         [BsonRepresentation(BsonType.String)]
         public Guid VideoId { get; set; }
-
+        [BsonElement("Results")]
         public IList<ResultItem> Results { get; set; }
+        [BsonElement("ProcessmentDate")]
         public DateTime ProcessmentDate { get; } = DateTime.UtcNow;
 
+        public VideoResultEntity() { }
         public VideoResultEntity(Guid videoId, IList<ResultItem> result)
         {
             this.VideoId = videoId;

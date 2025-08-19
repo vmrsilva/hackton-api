@@ -1,6 +1,7 @@
 ﻿using Hackton.Domain.Interfaces.VideoResult.Repository;
 using Hackton.Domain.Interfaces.VideoResult.UseCase;
 using Hackton.Domain.VideoResult.Entity;
+using Hackton.Domain.VideoResult.Exceptions;
 
 namespace Hackton.Domain.VideoResult.UseCases
 {
@@ -17,7 +18,7 @@ namespace Hackton.Domain.VideoResult.UseCases
         {
             var result = await _videoResultRepository.GetByVideoId(command).ConfigureAwait(false);
 
-            return result ?? throw new KeyNotFoundException($"Video result with VideoId {command} not found.");
+            return result ?? throw new VideoResultNotFound();
         }
     }
 }
