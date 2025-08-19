@@ -248,8 +248,16 @@ namespace Hackton.Tests.IntegrationTests.Setup
             var database = serviceProvider.GetRequiredService<IMongoDatabase>();
 
             var collection = database.GetCollection<VideoResultEntity>("VideoResults");
+            try
+            {
+                await collection.DeleteManyAsync(Builders<VideoResultEntity>.Filter.Empty);
+            }
+            catch (Exception ex)
+            {
 
-            await collection.DeleteManyAsync(Builders<VideoResultEntity>.Filter.Empty);
+                Console.WriteLine($"Falha ao limpar MongoDB: {ex.Message}");
+            }
+
 
             var fakeItemResult = new Faker<ResultItem>()
                 .RuleFor(f => f.Description, f => f.Lorem.Word())
