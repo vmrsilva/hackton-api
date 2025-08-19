@@ -61,9 +61,18 @@ namespace Hackton.Tests.IntegrationTests.Setup
 
             _mongoContainer = new MongoDbBuilder()
                 .WithImage("mongo:6.0")
+                          .WithUsername(string.Empty)       // Usuário padrão
+                .WithPassword(string.Empty)   // Senha forte
                 .WithPortBinding(27017, 27017)
-                .WithWaitStrategy(Wait.ForUnixContainer().UntilPortIsAvailable(27017))
+                //.WithEnvironment("MONGO_INITDB_ROOT_USERNAME", "admin")
+                //.WithEnvironment("MONGO_INITDB_ROOT_PASSWORD", "admin123")
+             .WithWaitStrategy(Wait.ForUnixContainer().UntilCommandIsCompleted(
+        "mongosh",
+        "--eval",
+        "db.runCommand({ping:1})")
+    )
                 .Build();
+
         }
 
         protected override void ConfigureWebHost(IWebHostBuilder builder)
@@ -82,7 +91,7 @@ namespace Hackton.Tests.IntegrationTests.Setup
             {
                 var testConfig = new Dictionary<string, string?>
             {
-                { "ConnectionStrings:Mongodb", $"mongodb://{_mongoContainer.Hostname}:27017" },
+                { "ConnectionStrings:Mongodb",_mongoContainer.GetConnectionString()},
                 { "ConnectionStrings:MongoDbDatabase", "hackton-tests" }
             };
 
@@ -167,7 +176,7 @@ namespace Hackton.Tests.IntegrationTests.Setup
             if (mongoClient != null)
                 services.Remove(mongoClient);
 
-            var connectionString = $"mongodb://{_mongoContainer.Hostname}:27017";
+            var connectionString = _mongoContainer.GetConnectionString();
 
             services.AddSingleton<MongoDB.Driver.IMongoClient>(sp =>
             {
