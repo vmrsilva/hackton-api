@@ -61,16 +61,14 @@ namespace Hackton.Tests.IntegrationTests.Setup
 
             _mongoContainer = new MongoDbBuilder()
                 .WithImage("mongo:6.0")
-                          .WithUsername(string.Empty)       // Usuário padrão
-                .WithPassword(string.Empty)   // Senha forte
+                .WithUsername(string.Empty)
+                .WithPassword(string.Empty)
                 .WithPortBinding(27017, 27017)
-                //.WithEnvironment("MONGO_INITDB_ROOT_USERNAME", "admin")
-                //.WithEnvironment("MONGO_INITDB_ROOT_PASSWORD", "admin123")
-             .WithWaitStrategy(Wait.ForUnixContainer().UntilCommandIsCompleted(
-        "mongosh",
-        "--eval",
-        "db.runCommand({ping:1})")
-    )
+                .WithWaitStrategy(Wait.ForUnixContainer()
+                    .UntilCommandIsCompleted(
+                        "mongosh",
+                        "--eval",
+                        "db.runCommand({ping:1})"))
                 .Build();
 
         }
@@ -264,7 +262,6 @@ namespace Hackton.Tests.IntegrationTests.Setup
 
                 Console.WriteLine($"Falha ao limpar MongoDB: {ex.Message}");
             }
-
 
             var fakeItemResult = new Faker<ResultItem>()
                 .RuleFor(f => f.Description, f => f.Lorem.Word())
