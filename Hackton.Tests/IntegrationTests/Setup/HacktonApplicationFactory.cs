@@ -161,7 +161,7 @@ namespace Hackton.Tests.IntegrationTests.Setup
             });
         }
 
-        private void ConfigureMongo(IServiceCollection services)
+        private async Task ConfigureMongo(IServiceCollection services)
         {
             var mongoClient = services.FirstOrDefault(descriptor => descriptor.ServiceType == typeof(MongoDB.Driver.IMongoClient));
             if (mongoClient != null)
@@ -180,10 +180,8 @@ namespace Hackton.Tests.IntegrationTests.Setup
                 return client.GetDatabase("hackton-tests");
             });
 
-            using (var serviceProvider = services.BuildServiceProvider())
-            {
-                InitialSeedMongo(serviceProvider).GetAwaiter().GetResult();
-            }
+            using var scope = services.BuildServiceProvider().CreateScope();
+            await InitialSeedMongo(scope.ServiceProvider);
         }
 
         private void MockServices(IServiceCollection services)
