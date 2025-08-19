@@ -1,5 +1,6 @@
 ﻿using Hackton.Infrastructure.Context;
 using Microsoft.Extensions.DependencyInjection;
+using MongoDB.Driver;
 using System.Text.Json;
 
 namespace Hackton.Tests.IntegrationTests.Setup
@@ -8,8 +9,8 @@ namespace Hackton.Tests.IntegrationTests.Setup
     {
         private readonly IServiceScope _scope;
         protected readonly JsonSerializerOptions _jsonSerializerOptions;
-        //  protected readonly IRegionService _regionService;
         protected readonly HacktonContext _dbContext;
+        protected readonly IMongoDatabase _hacktonMongoContext;
 
         public BaseIntegrationTest(HacktonApplicationFactory factory)
         {
@@ -20,7 +21,7 @@ namespace Hackton.Tests.IntegrationTests.Setup
 
             _scope = factory.Services.CreateScope();
             _dbContext = _scope.ServiceProvider.GetRequiredService<HacktonContext>();
-            // _regionService = _scope.ServiceProvider.GetRequiredService<IRegionService>();
+            _hacktonMongoContext = _scope.ServiceProvider.GetRequiredService<IMongoDatabase>();
         }
 
         public void Dispose()

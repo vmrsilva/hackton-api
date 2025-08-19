@@ -1,6 +1,7 @@
 ﻿using Bogus;
 using DotNet.Testcontainers.Builders;
 using Hackton.Domain.Video.Entity;
+using Hackton.Domain.VideoResult.Entity;
 using Hackton.Infrastructure.Context;
 using Hackton.Shared.Messaging;
 using Hackton.Shared.UploadService;
@@ -8,9 +9,13 @@ using MassTransit;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using MongoDB.Bson;
+using MongoDB.Driver;
 using Moq;
 using System.Runtime.InteropServices;
+using Testcontainers.MongoDb;
 using Testcontainers.MsSql;
 using Testcontainers.RabbitMq;
 
@@ -20,7 +25,7 @@ namespace Hackton.Tests.IntegrationTests.Setup
     {
         private readonly MsSqlContainer _msSqlContainer;
         private readonly RabbitMqContainer _rabbitMqContainer;
-        //private readonly RedisContainer _redisContainer;
+        private readonly MongoDbContainer _mongoContainer;
         private readonly string _rabbitPwd = "guest";
         private readonly string _rabbitUser = "guest";
         private readonly Mock<IUploadFileService> _uploadFileService;
@@ -49,10 +54,23 @@ namespace Hackton.Tests.IntegrationTests.Setup
                     .WithUsername(_rabbitPwd)
                     .WithPassword(_rabbitUser)
                     .WithPortBinding(5672, 5672)
-                    .WithPortBinding(15672, 15672) // RabbitMQ Management
+                    .WithPortBinding(15672, 15672)
                     .WithWaitStrategy(Wait.ForUnixContainer().UntilPortIsAvailable(5672))
                     .WithWaitStrategy(Wait.ForUnixContainer().UntilPortIsAvailable(15672))
                     .Build();
+
+            _mongoContainer = new MongoDbBuilder()
+                .WithImage("mongo:6.0")
+                .WithUsername(string.Empty)
+                .WithPassword(string.Empty)
+                .WithPortBinding(27017, 27017)
+                .WithWaitStrategy(Wait.ForUnixContainer()
+                    .UntilCommandIsCompleted(
+                        "mongosh",
+                        "--eval",
+                        "db.runCommand({ping:1})"))
+                .Build();
+
         }
 
         protected override void ConfigureWebHost(IWebHostBuilder builder)
@@ -60,12 +78,23 @@ namespace Hackton.Tests.IntegrationTests.Setup
             builder.ConfigureServices(services =>
             {
                 ConfigureDbContext(services);
-                //ConfigureCache(services);
                 MockServices(services);
                 ConfigureRabbitMq(services);
+                ConfigureMongo(services);
             });
 
             base.ConfigureWebHost(builder);
+
+            builder.ConfigureAppConfiguration((context, config) =>
+            {
+                var testConfig = new Dictionary<string, string?>
+            {
+                { "ConnectionStrings:Mongodb",_mongoContainer.GetConnectionString()},
+                { "ConnectionStrings:MongoDbDatabase", "hackton-tests" }
+            };
+
+                config.AddInMemoryCollection(testConfig);
+            });
         }
 
         private void ConfigureDbContext(IServiceCollection services)
@@ -90,7 +119,7 @@ namespace Hackton.Tests.IntegrationTests.Setup
 
                 options.UseSqlServer(connectionString, sqlOptions =>
                 {
-                    sqlOptions.EnableRetryOnFailure(); // Habilita retry automático
+                    sqlOptions.EnableRetryOnFailure();
                 });
 
             });
@@ -139,6 +168,29 @@ namespace Hackton.Tests.IntegrationTests.Setup
             });
         }
 
+        private async Task ConfigureMongo(IServiceCollection services)
+        {
+            var mongoClient = services.FirstOrDefault(descriptor => descriptor.ServiceType == typeof(MongoDB.Driver.IMongoClient));
+            if (mongoClient != null)
+                services.Remove(mongoClient);
+
+            var connectionString = _mongoContainer.GetConnectionString();
+
+            services.AddSingleton<MongoDB.Driver.IMongoClient>(sp =>
+            {
+                return new MongoDB.Driver.MongoClient(connectionString);
+            });
+
+            services.AddScoped(sp =>
+            {
+                var client = sp.GetRequiredService<MongoDB.Driver.IMongoClient>();
+                return client.GetDatabase("hackton-tests");
+            });
+
+            using var scope = services.BuildServiceProvider().CreateScope();
+            await InitialSeedMongo(scope.ServiceProvider);
+        }
+
         private void MockServices(IServiceCollection services)
         {
             var uploadService = services.FirstOrDefault(descriptor => descriptor.ServiceType == typeof(IUploadFileService));
@@ -147,7 +199,6 @@ namespace Hackton.Tests.IntegrationTests.Setup
                 services.Remove(uploadService);
             }
 
-            //services.AddSingleton<IUploadFileService>(_uploadFileService.Object);
             services.AddScoped<IUploadFileService>(_ => _uploadFileService.Object);
 
             var messageService = services.FirstOrDefault(descriptor => descriptor.ServiceType == typeof(IMessagingService));
@@ -156,7 +207,6 @@ namespace Hackton.Tests.IntegrationTests.Setup
                 services.Remove(messageService);
             }
 
-            //            services.AddSingleton<IMessagingService>(_messagingService.Object);
             services.AddScoped<IMessagingService>(_ => _messagingService.Object);
         }
 
@@ -173,16 +223,14 @@ namespace Hackton.Tests.IntegrationTests.Setup
         public async Task InitializeAsync()
         {
             await _msSqlContainer.StartAsync();
-
-            //  await _redisContainer.StartAsync();
-
+            await _mongoContainer.StartAsync();
             await _rabbitMqContainer.StartAsync();
         }
 
         async Task IAsyncLifetime.DisposeAsync()
         {
             await _msSqlContainer.StopAsync();
-            //  await _redisContainer.StopAsync();
+            await _mongoContainer.StopAsync();
             await _rabbitMqContainer.StopAsync();
         }
 
@@ -198,6 +246,40 @@ namespace Hackton.Tests.IntegrationTests.Setup
             context.Video.AddRange(video);
 
             context.SaveChanges();
+        }
+
+        private async Task InitialSeedMongo(IServiceProvider serviceProvider)
+        {
+            var database = serviceProvider.GetRequiredService<IMongoDatabase>();
+
+            var collection = database.GetCollection<VideoResultEntity>("VideoResults");
+            try
+            {
+                await collection.DeleteManyAsync(Builders<VideoResultEntity>.Filter.Empty);
+            }
+            catch (Exception ex)
+            {
+
+                Console.WriteLine($"Falha ao limpar MongoDB: {ex.Message}");
+            }
+
+            var fakeItemResult = new Faker<ResultItem>()
+                .RuleFor(f => f.Description, f => f.Lorem.Word())
+                .RuleFor(f => f.Time, f => f.Date.Timespan());
+
+            var ResultItems = fakeItemResult.Generate(2);
+
+            var ListResult = new List<ResultItem>(ResultItems);
+
+            var faker = new Faker<VideoResultEntity>()
+                .RuleFor(f => f.Id, ObjectId.GenerateNewId())
+                .RuleFor(f => f.VideoId, Guid.NewGuid())
+                .RuleFor(f => f.ProcessmentDate, f => f.Date.Soon())
+                .RuleFor(f => f.Results, ListResult);
+
+            var fakeData = faker.Generate(2);
+
+            await collection.InsertManyAsync(fakeData);
         }
     }
 }
